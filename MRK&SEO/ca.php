@@ -1,0 +1,34 @@
+<?php
+define("_NOM", "NOM");
+define("_BUSCAR", "Nº RECERQUES");
+define("_COMP", "COMPETÈNCIA");
+define("_TPAG", "TOTAL DE PÀGINES");
+define("_POS", "POSICIÓ");
+define("_POSP", "POSICIÓ PREV.");
+define("_PREU", "PREU");
+define("_TRAFIC", "TRÀNSIT");
+define("_PROD", "PRODUCTE");
+define("_REF", "REFERÈNCIA");
+define("_VIST", "NOMBRE DE PRODUCTES");
+define("_LMaVe", "EL MÉS VENUT");
+define("_LMaVe30", "EL MÉS VENUT últims 30 dies");
+define("_LMaVi", "PARAULES MÉS BUSCADES");
+define("_LMaVi30", "PARAULES MÉS BUSCADES últims 30 dies");
+define("_LMenVe", "LO MENYS VENUT");
+define("_Title", "INFORME SEO I MARKETING");
+define("_Web", "PÀGINA WEB: ");
+define("_NUM", "NOMBRE DE REPETICIONS");
+define("_MeBusc", "MENYS CERCATS");
+define("_MaBusc", "MÉS CERCATS");
+define("_MaBusc30", "MÉS CERCATS últims 30 dies");
+define("_NoRes", "SENSE RESULTATS");
+define("_NoRes30", "SENSE RESULTATS  últims 30 dies");
+define("_Ventas", "VENTES");
+define("_User", "USUARIS");
+define("_Visitas", "VISITES");
+define("_Session", "SESIÓ");
+define("_Rebot", "REBOT");
+define("_New", "NOU");
+define("_Time", "TEMPS MIG");
+define("_Conv", "CONVERSIÓ");
+?>
