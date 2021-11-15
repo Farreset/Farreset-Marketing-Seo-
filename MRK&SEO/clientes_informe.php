@@ -875,7 +875,7 @@ if(isset($mes_atras)){
     $info = array(); 
     $info2 = array();
     $array_messes = array();
-  $count =0;
+
     for ($j = $mes_loop; $j<= $mes_1; $j++) { 
 
       $data_fin =  ultimo_dia_mes($j);
@@ -886,7 +886,6 @@ if(isset($mes_atras)){
     $results2 = getResults($analytics,$profile, $data_ini, $data_fin,'ga:transactionRevenue',array(
       'dimensions' => 'ga:source'
   ));
-
 
   $num_mes  = $j;
   $data   = DateTime::createFromFormat('!m', $num_mes);
@@ -940,7 +939,6 @@ $profileName = $results->getProfileInfo()->getProfileName();
         $transaction = $data[0];
         $source = $data[1];
         $info2['data'][$transaction]['source'][] = array('value'=>$source,'mes'=>$j);
-        $count++;
         $info2['total'][$j] += $source;
       }
 
@@ -954,65 +952,82 @@ $profileName = $results->getProfileInfo()->getProfileName();
 
 function acqusition($info2,$array_messes){ 
 
-$mes_atras=($_POST['meses_atras']  ? $_POST['meses_atras'] : "3");
+  $mes_atras=($_POST['meses_atras']  ? $_POST['meses_atras'] : "3");
 
-?>
-    <table class="table">
-      <thead>
-        <tr>
-          <th>
-            <?echo _OrgIn?>
-          </th>
-          <? foreach ($info2['cabecera'] as $key) {
-              echo "<th>$key</th>";
-            }?>
-        </tr>
-      </thead>
-      <tbody>
-        <? foreach ($info2['data'] as $key => $data ) {
- 
   ?>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>
+              <?echo _OrgIn?>
+            </th>
+            <? foreach ($info2['cabecera'] as $key) {
+                echo "<th>$key</th>";
+              }?>
+              <th>
+              <?echo "Total"?>
+            </th>
+          </tr>
+        </thead>
+        <tbody> 
+          <?
+          foreach ($info2['data'] as $key => $data ) {
 
-        <tr>
-          <td>
-            <? echo $key;?>
+            $totalLin = 0;
 
-          </td>
+            foreach ($data['source'] as $value ) {
+              $totalLin += $value['value'];
+            }
 
-          <?   
+            if($totalLin == 0) continue;
+            
+            
+            ?>
+         <tr
+         
+         ><td>
+              <? echo $key;?>
+         </td> <?  
+          if(sizeof($data['source']) < (1+$mes_atras)){
+
+            $arr=array();
+            foreach ($array_messes as $mes => $nom_mes) {
+              $arr[]=array('value'=>"0.0",'mes'=>$mes);
+            }
+            $data['source']=array_replace($arr,$data['source']); 
+
+            }?>
+            <? 
+            $totalLin = 0;
+           
+
+            foreach ($data['source'] as $key => $value ) {
+              
+              $totalLin += $value['value'];
 
 
-if(sizeof($data['source']) < (1+$mes_atras)){
+                ?><td><?
+             echo number_format($value['value'],2,',', '.')." €";
+            ?></td><?
+           }
+        ?>
 
-$arr=array();
- foreach ($array_messes as $mes => $nom_mes) {
-  $arr[]=array('value'=>"0.0",'mes'=>$mes);
- }
- $data['source']=array_replace($arr,$data['source']); 
-
-}?>
-          <? foreach ($data['source'] as $key => $value ) { 
-?>
-          <td>
-            <?
-      
-   echo $value['value'];?>
-          </td>
+        <td> 
+          <?php echo number_format($totalLin,2,',', '.')." €";?>
+        </td>
+          </tr>
           <?php }
-      ?>
-        </tr>
-        <?php }
-      ?>
-        <tr>
-          <HR>
-          <th>TOTAL</th>
-          <?foreach ($info2['total'] as $key => $value) { 
-echo "<td> ".$value." €</td>";}?>
-        </tr>
-      </tbody>
+        ?>
+          <tr>
 
-    </table>
-    <?
+            <th>TOTAL</th>
+            <?foreach ($info2['total'] as $key => $value) { 
+    echo "<td> ".$value." €</td>";}?>
+          </tr>
+        </tbody>
+
+      </table>
+      <?
 }
 
 function behaivour($info){?>
@@ -1083,70 +1098,72 @@ function behaivour($info){?>
 
 
     <?
-}
-                
-
+}             
 
 function getFirstProfileId($analytics) {
-// Get the user's first view (profile) ID.
+  // Get the user's first view (profile) ID.
+  // $ordering = new Google_Service_AnalyticsReporting_OrderBy();
+  // $ordering->setFieldName("ga:transactionRevenue");
+  // $ordering->setOrderType("VALUE"); 
+  // $ordering->setSortOrder("DESCENDING");
 
-// Get the list of accounts for the authorized user.
-$accounts = $analytics->management_accounts->listManagementAccounts();
-if (count($accounts->getItems()) > 0) {
-$items = $accounts->getItems();
-$firstAccountId = $items[0]->getId();
+  // Get the list of accounts for the authorized user.
+  $accounts = $analytics->management_accounts->listManagementAccounts();
+  if (count($accounts->getItems()) > 0) {
+  $items = $accounts->getItems();
+  $firstAccountId = $items[0]->getId();
 
-// Get the list of properties for the authorized user.
-$properties = $analytics->management_webproperties
-  ->listManagementWebproperties($firstAccountId);
+  // Get the list of properties for the authorized user.
+  $properties = $analytics->management_webproperties
+    ->listManagementWebproperties($firstAccountId);
 
-if (count($properties->getItems()) > 0) {
-$items = $properties->getItems();
-$firstPropertyId = $items[0]->getId();
+  if (count($properties->getItems()) > 0) {
+  $items = $properties->getItems();
+  $firstPropertyId = $items[0]->getId();
 
-// Get the list of views (profiles) for the authorized user.
-$profiles = $analytics->management_profiles
-    ->listManagementProfiles($firstAccountId, $firstPropertyId);
+  // Get the list of views (profiles) for the authorized user.
+  $profiles = $analytics->management_profiles
+      ->listManagementProfiles($firstAccountId, $firstPropertyId);
 
-if (count($profiles->getItems()) > 0) {
-  $items = $profiles->getItems();
-  print_r($items);
+  if (count($profiles->getItems()) > 0) {
+    $items = $profiles->getItems();
+    print_r($items);
 
-  // Return the first view (profile) ID.
-  return $items[0]->getId();
+    // Return the first view (profile) ID.
+    return $items[0]->getId();
 
-} else {
-  throw new Exception('No views (profiles) found for this user.');
-}
-} else {
-throw new Exception('No properties found for this user.');
-}
-} else {
-throw new Exception('No accounts found for this user.');
-}
+  } else {
+    throw new Exception('No views (profiles) found for this user.');
+  }
+  } else {
+  throw new Exception('No properties found for this user.');
+  }
+  } else {
+  throw new Exception('No accounts found for this user.');
+  }
 }
 
 function ultimo_dia_mes($month) { 
-//$month = date('m');
-$year = date('Y');
-$day = date("d", mktime(0,0,0, $month+1, 0, $year));
+  //$month = date('m');
+  $year = date('Y');
+  $day = date("d", mktime(0,0,0, $month+1, 0, $year));
 
-return date('Y-m-d', mktime(0,0,0, $month, $day, $year));
-}
+  return date('Y-m-d', mktime(0,0,0, $month, $day, $year));
+  }
 
-function primer_dia_mes($month) {
-// $month = date('m');
-$year = date('Y');
-return date('Y-m-d', mktime(0,0,0, $month, 1, $year));
+  function primer_dia_mes($month) {
+  // $month = date('m');
+  $year = date('Y');
+  return date('Y-m-d', mktime(0,0,0, $month, 1, $year));
 }
 
 function getResults($analytics, $profileId,$data_ini,$data_fin,$tipo,$dimensions=array()) {
-// Calls the Core Reporting API and queries for the number of sessions
-// for the last seven days.
-return $analytics->data_ga->get(
-'ga:' . $profileId,
-$data_ini, $data_fin,
-$tipo,$dimensions);
+  // Calls the Core Reporting API and queries for the number of sessions
+  // for the last seven days.
+  return $analytics->data_ga->get(
+  'ga:' . $profileId,
+  $data_ini, $data_fin,
+  $tipo,$dimensions);
 
 
 }
@@ -1157,10 +1174,9 @@ behaivour($info)
 ?>
     <div class="saltopagina" id="header"> </div> <br>
     <?
-acqusition($info2,$array_messes)
+acqusition($info2,$array_messes); 
 ?>
 
 
 </body>
-
 </html>
